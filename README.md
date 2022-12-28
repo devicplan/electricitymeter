@@ -17,9 +17,7 @@ Application
 5. fix the photoresistor in front of the flashing LED of the electricity meter (adhesive tape)
 6. transfer the file main.py to the Raspberry Pico W using Thonny
 7. Open the Raspberry Pico W in any browser via the IP address.
-
-# German
-
+#
 Aufgabe der Software
 Graphische Darstellung des Energieverbrauchs durch Auswertung der Blinkimpulse an einem modernen elektronischen Stromzähler. Die Auswertung an einem Ferrariszähler ist nicht möglich. 
 Funktionsweise
