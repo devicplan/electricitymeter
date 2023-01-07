@@ -1,6 +1,6 @@
-# Electricity-Meter-Viewer V0.99.18
+# Electricity-Meter-Viewer V0.99.19
 # Micropython with Raspberry Pico W
-# 02.01.2023 jd@icplan.de
+# 04.01.2023 jd@icplan.de
 # backup.py - (impulse, impulse_d, impulse_m, impulse_y, sowi, zimp, par1, par2, 24*twohour, 24*twohour_t, another 2 * (24+31+24 values)) = 214 values separated as string semicolon
 # Autobackup every hour
 
@@ -56,7 +56,7 @@ wlan.connect(ssid, password)
 html0 = """<!DOCTYPE html><html>
     <head> <title>Graphic Electricity Meter Viewer</title> </head>
     <body> <body bgcolor=A4C8F0><h1>Graphic Electricity Meter Viewer</h1>
-    <table "width=400"><tr><td width="150">Software version</td><td>0.99.18 (02.01.2023)</td></tr><tr><td>Developed by</td><td>www.icplan.de</td></tr>
+    <table "width=400"><tr><td width="150">Software version</td><td>0.99.19 (04.01.2023)</td></tr><tr><td>Developed by</td><td>www.icplan.de</td></tr>
     <tr><td>current date and time</td><td>"""
 html1 = """</td></tr></table><br><a href="https://quickchart.io/chart?c={type:'bar',data:{labels:["""
 html2 = """],datasets:[{label:'Energy consumption in Wh - Average """
@@ -392,7 +392,7 @@ while True:
             update_link()
             ntptime.settime()                                                     # update time per ntp
             print("a day is over")
-        if((time_a[1] == 1)and(time_a[3] == 0)and(time_a[4] == 0)):               # always start at day 1 once
+        if((time_a[2] == 1)and(time_a[3] == 0)and(time_a[4] == 0)):               # always start at day 1 once
             nextmonth()
             update_link()
             print("a month is over")
