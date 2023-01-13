@@ -1,6 +1,6 @@
-# Electricity-Meter-Viewer V0.99.19
+# Electricity-Meter-Viewer V0.99.20
 # Micropython with Raspberry Pico W
-# 04.01.2023 jd@icplan.de
+# 10.01.2023 jd@icplan.de
 # backup.py - (impulse, impulse_d, impulse_m, impulse_y, sowi, zimp, par1, par2, 24*twohour, 24*twohour_t, another 2 * (24+31+24 values)) = 214 values separated as string semicolon
 # Autobackup every hour
 
@@ -56,7 +56,7 @@ wlan.connect(ssid, password)
 html0 = """<!DOCTYPE html><html>
     <head> <title>Graphic Electricity Meter Viewer</title> </head>
     <body> <body bgcolor=A4C8F0><h1>Graphic Electricity Meter Viewer</h1>
-    <table "width=400"><tr><td width="150">Software version</td><td>0.99.19 (04.01.2023)</td></tr><tr><td>Developed by</td><td>www.icplan.de</td></tr>
+    <table "width=400"><tr><td width="150">Software version</td><td>0.99.20 (10.01.2023)</td></tr><tr><td>Developed by</td><td>www.icplan.de</td></tr>
     <tr><td>current date and time</td><td>"""
 html1 = """</td></tr></table><br><a href="https://quickchart.io/chart?c={type:'bar',data:{labels:["""
 html2 = """],datasets:[{label:'Energy consumption in Wh - Average """
@@ -268,9 +268,9 @@ def nexthour():
     impulse_d = 0
 
 def nextday():
+    global month, month_t, monthd, monthd_t, impulse_m, month_avr, sowi, local_time_sec
     local_time_sec = utime.time() + int(sowi) * 3600 - (8 * 60 * 60)               # Yesterday's date 
     time_a = utime.localtime(local_time_sec)
-    global month, month_t, monthd, monthd_t, impulse_m, month_avr
     for a in range (1,31,1):                                                       # move dataset
         month[a-1] = month[a]    
     month[30] = impulse_m                                                          # enter current impulses
@@ -282,10 +282,10 @@ def nextday():
     local_time_sec = utime.time() + int(sowi) * 3600 
 
 def nextmonth():
+    global twoyear, twoyear_t, twoyeard, twoyeard_t, impulse_y, twoyear_avr, sowi, local_time_sec
     local_time_sec = utime.time() + int(sowi) * 3600 - (8 * 60 * 60)               # Yesterday's date 
     time_a = utime.localtime(local_time_sec)
 
-    global twoyear, twoyear_t, twoyeard, twoyeard_t, impulse_y, twoyear_avr
     for a in range (1,24,1):                                                       # move dataset
         twoyear[a-1] = twoyear[a]    
     twoyear[23] = impulse_y / 30.5                                                 # enter current impulses / average
@@ -332,7 +332,8 @@ update_link()
 
 # Listen for connections
 while True:
-    local_time_sec = utime.time() + int(sowi) * 3600
+    local_time_sec = utime.time() + (int(sowi) * 3600)
+#    local_time_sec = utime.time() + (int(sowi) * 3600) + ( 2 * 3600) + (27 * 60)
     time_a = utime.localtime(local_time_sec)
     print("%02d:%02d:%02d" % (time_a[3],time_a[4],time_a[5]))
     try:
