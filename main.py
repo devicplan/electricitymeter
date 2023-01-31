@@ -1,6 +1,6 @@
-# Electricity-Meter-Viewer V0.99.20
+# Electricity Meter Viewer V0.99.22
 # Micropython with Raspberry Pico W
-# 10.01.2023 jd@icplan.de
+# 31.01.2023 jd@icplan.de
 # backup.py - (impulse, impulse_d, impulse_m, impulse_y, sowi, zimp, par1, par2, 24*twohour, 24*twohour_t, another 2 * (24+31+24 values)) = 214 values separated as string semicolon
 # Autobackup every hour
 
@@ -56,7 +56,7 @@ wlan.connect(ssid, password)
 html0 = """<!DOCTYPE html><html>
     <head> <title>Graphic Electricity Meter Viewer</title> </head>
     <body> <body bgcolor=A4C8F0><h1>Graphic Electricity Meter Viewer</h1>
-    <table "width=400"><tr><td width="150">Software version</td><td>0.99.20 (10.01.2023)</td></tr><tr><td>Developed by</td><td>www.icplan.de</td></tr>
+    <table "width=400"><tr><td width="150">Software version</td><td>0.99.22 (31.01.2023)</td></tr><tr><td>Developed by</td><td>www.icplan.de</td></tr>
     <tr><td>current date and time</td><td>"""
 html1 = """</td></tr></table><br><a href="https://quickchart.io/chart?c={type:'bar',data:{labels:["""
 html2 = """],datasets:[{label:'Energy consumption in Wh - Average """
@@ -67,7 +67,7 @@ html6 = """]}]}}">View and result of the last month</a><br><br><a href="https://
 html7 = """]}]}}">View and result of the last 2 years</a><br><br><br><br>Other features<br><a href="backup">Create</a> backup<br><a href="sbackup">Create special</a> backup<br>
 <a href="sommer">Set daylight</a> saving time<br>Set the <a href="winter">winter</a> time<br></body></html>"""
 
-def backup_write():                                                                 # Create backup
+def backup_write():                                                                # Create backup
     global impulse, impulse_d, impulse_m, impulse_y, sowi, zimp, par1, par2
     global twohour, twohour_t, oneday, oneday_t, month, month_t, twoyear, twoyear_t
     try:
@@ -92,13 +92,13 @@ def backup_write():                                                             
     file.write(e)
     file.close()
     for a in range (0,3,1):
-        led.on()                                                                    # led 3x short flash
+        led.on()                                                                   # led 3x short flash
         time.sleep(0.1)
         led.off()
         time.sleep(0.4)
     time.sleep(3)
 
-def sbackup_write():                                                                # Create special backup
+def sbackup_write():                                                               # Create special backup
     global impulse, impulse_d, impulse_m, impulse_y, sowi, zimp, par1, par2
     global twohour, twohour_t, oneday, oneday_t, month, month_t, twoyear, twoyear_t
     try:
@@ -123,7 +123,7 @@ def sbackup_write():                                                            
     file.write(e)
     file.close()
     for a in range (0,6,1):
-        led.on()                                                                    # led 6x short flash
+        led.on()                                                                   # led 6x short flash
         time.sleep(0.1)
         led.off()
         time.sleep(0.4)
@@ -268,8 +268,8 @@ def nexthour():
     impulse_d = 0
 
 def nextday():
-    global month, month_t, monthd, monthd_t, impulse_m, month_avr, sowi, local_time_sec
-    local_time_sec = utime.time() + int(sowi) * 3600 - (8 * 60 * 60)               # Yesterday's date 
+    global month, month_t, monthd, monthd_t, impulse_m, month_avr, sowi, local_time_sec, time_a
+    local_time_sec = (utime.time() + (int(sowi) * 3600) - 28800)                   # Yesterday's date 
     time_a = utime.localtime(local_time_sec)
     for a in range (1,31,1):                                                       # move dataset
         month[a-1] = month[a]    
@@ -279,13 +279,13 @@ def nextday():
     b = ("'%02d.%02d.'" % (time_a[2],time_a[1]))                                   # day and month
     month_t[30] = b                                                                # enter current time
     impulse_m = 0
-    local_time_sec = utime.time() + int(sowi) * 3600 
-
-def nextmonth():
-    global twoyear, twoyear_t, twoyeard, twoyeard_t, impulse_y, twoyear_avr, sowi, local_time_sec
-    local_time_sec = utime.time() + int(sowi) * 3600 - (8 * 60 * 60)               # Yesterday's date 
+    local_time_sec = utime.time() + (int(sowi) * 3600) 
     time_a = utime.localtime(local_time_sec)
 
+def nextmonth():
+    global twoyear, twoyear_t, twoyeard, twoyeard_t, impulse_y, twoyear_avr, sowi, local_time_sec, time_a
+    local_time_sec = (utime.time() + (int(sowi) * 3600) - 28800)                   # Yesterday's date 
+    time_a = utime.localtime(local_time_sec)
     for a in range (1,24,1):                                                       # move dataset
         twoyear[a-1] = twoyear[a]    
     twoyear[23] = impulse_y / 30.5                                                 # enter current impulses / average
@@ -294,7 +294,8 @@ def nextmonth():
     b = ("'%02d.%04d'" % (time_a[1],time_a[0]))                                    # month and year
     twoyear_t[23] = b                                                              # enter current time
     impulse_y = 0
-    local_time_sec = utime.time() + int(sowi) * 3600 
+    local_time_sec = utime.time() + (int(sowi) * 3600) 
+    time_a = utime.localtime(local_time_sec)
 
 # Wait for connect or fail
 max_wait = 30
@@ -319,7 +320,10 @@ else:
 # Open socket
 addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
 
-ntptime.settime()                                                                  # load ntp time
+try:
+    ntptime.settime()                                                              # update time per ntp
+except OSError as error:
+    print(str("errornr="),error)
 
 s = socket.socket()
 s.bind(addr)
@@ -362,48 +366,51 @@ while True:
         cl.close()
 
     except OSError as e:
-        if((e.args[0])==110):                                                     # error 110 = timeout socket
+        if((e.args[0])==110):                                                      # error 110 = timeout socket
             pass
 #           print('connection timeout')
         else:
             cl.close()
             print('connection closed')
             
-    led.on()                                                                      # leds flash every 5 seconds for function control
+    led.on()                                                                       # leds flash every 5 seconds for function control
     time.sleep(0.1)
     led.off()
     time.sleep(0.1)
-    print(impulse, impulse_d, impulse_m, impulse_y)                               # print pulses
+    print(impulse, impulse_d, impulse_m, impulse_y)                                # print pulses
     
     if(time_a[5] < 10):
-        if((time_a[4] % 5) == 0):                                                 # at 0, 5, 10, 15 ... 55 minutes one time start
+        if((time_a[4] % 5) == 0):                                                  # at 0, 5, 10, 15 ... 55 minutes one time start
             next5min()
             update_link()
             time.sleep(10 - time_a[5])
-            print("%02d:%02d:%02d" % (time_a[3],time_a[4],time_a[5]))             # print time
+            print("%02d:%02d:%02d" % (time_a[3],time_a[4],time_a[5]))              # print time
             print("5 minutes ar over")
-        if(time_a[4] == 0):                                                       # always start once at minute 0
+        if(time_a[4] == 0):                                                        # always start once at minute 0
             nexthour()
             update_link()
             backup_write()
             print("an hour is over")
-        if((time_a[3] == 0)and(time_a[4] == 0)):                                  # always start once at hour 0
+        if((time_a[3] == 0)and(time_a[4] == 0)):                                   # always start once at hour 0
             time.sleep(15)
             nextday()
             update_link()
-            ntptime.settime()                                                     # update time per ntp
+            try:
+                ntptime.settime()                                                  # update time per ntp
+            except OSError as error:
+                print(str("errornr="),error)
             print("a day is over")
-        if((time_a[2] == 1)and(time_a[3] == 0)and(time_a[4] == 0)):               # always start at day 1 once
+        if((time_a[2] == 1)and(time_a[3] == 0)and(time_a[4] == 0)):                # always start at day 1 once
             nextmonth()
             update_link()
             print("a month is over")
             
-    if(start_backup == 1):                                                        # http://x.x.x.x/backup -> backup
+    if(start_backup == 1):                                                         # http://x.x.x.x/backup -> backup
         backup_write()
         print("create backup")
         start_backup = 0
 
-    if(start_sbackup == 1):                                                       # http://x.x.x.x/sbackup -> backup
+    if(start_sbackup == 1):                                                        # http://x.x.x.x/sbackup -> backup
         sbackup_write()
         print("create special backup")
         start_sbackup = 0
